@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<!--
+				Field Explanations:
+				%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}	The time in ISO8601 format in local time zone
+				[%t]								The current thread name
+				%p									The current logging priority such as DEBUG, INFO, etc.
+				%c{1.}								The class name using first char of package names. Ex: c.f.MyClass
+				%m%n								The actual log message followed by a line feed.
+			 -->
+			<PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%t] %p %c{1.} %m%n"/>
+		</Console>
+		
+		<!--
+			Exports log data to a Pulsar instance.
+			Includes the application EAI number as specified by the system property 'eai.nbr'.
+		-->
+		<Pulsar name="PULSAR" serviceUrl="pulsar://${sys:pulsar.host}:6650" topic="applog-json">
+			<JsonLayout properties="true" compact="true" eventEol="true">
+				<KeyValuePair key="timestamp" value="${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}"/>
+				<KeyValuePair key="app_name" value="${sys:app.name}"/>
+				<KeyValuePair key="hostname" value="${sd:hostName}"/>
+			</JsonLayout>
+      </Pulsar>
+
+   </Appenders>
+   <Loggers>
+      <Root level="${sys:log.level:-info}">
+         <AppenderRef ref="CONSOLE" />
+         <AppenderRef ref="PULSAR" />
+      </Root>
+   </Loggers>
+</Configuration>

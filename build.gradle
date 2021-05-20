@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath('org.springframework.boot:spring-boot-gradle-plugin:2.3.10.RELEASE')
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    jcenter()
+}
+
+group = 'hello'
+version = '1.0'
+
+def pulsarVersion = '2.7.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+	
+	implementation('org.springframework.boot:spring-boot-starter-web') {
+	    // For Log4j2 we must exclude "spring-boot-starter-logging" from other spring-boot-starter packages.
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'  
+	}
+
+    // NOTE: Must exclude "spring-boot-starter-logging" from other spring-boot-starter packages.
+    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    
+    // Add support for Pulsar appender in log4j2
+    implementation 'org.apache.pulsar:pulsar-log4j2-appender:2.6.3'
+    
+}
+
+bootRun {
+	// support passing -Dsystem.property=value to bootRun task
+	// Example execution: ./gradlew bootRun -Dapp.name=pulsarLog4jTest -Dlog.level=INFO -Dpulsar.host=localhost
+	systemProperties = System.properties
+}
+
